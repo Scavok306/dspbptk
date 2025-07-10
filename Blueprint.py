@@ -22,9 +22,9 @@ import datetime
 import gzip
 import base64
 import urllib.parse
-from MD5 import DysonSphereMD5
-from Tools import DateTimeTools
-from BlueprintData import BlueprintData
+from dspbptk.MD5 import DysonSphereMD5
+from dspbptk.Tools import DateTimeTools
+from dspbptk.BlueprintData import BlueprintData
 
 class Blueprint():
 	def __init__(self, game_version, data, layout = 10, icon0 = 0, icon1 = 0, icon2 = 0, icon3 = 0, icon4 = 0, timestamp = None, short_desc = "Short description", long_desc = "Long description"):

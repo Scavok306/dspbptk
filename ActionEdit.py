@@ -19,8 +19,8 @@
 #	Johannes Bauer <JohannesBauer@gmx.de>
 
 import os
-from BaseAction import BaseAction
-from Blueprint import Blueprint
+from dspbptk.BaseAction import BaseAction
+from dspbptk.Blueprint import Blueprint
 
 class ActionEdit(BaseAction):
 	def run(self):

@@ -20,11 +20,11 @@
 #	Johannes Bauer <JohannesBauer@gmx.de>
 
 import sys
-from MultiCommand import MultiCommand
-from ActionBlueprintToJSON import ActionBlueprintToJSON
-from ActionJSONToBlueprint import ActionJSONToBlueprint
-from ActionDump import ActionDump
-from ActionEdit import ActionEdit
+from dspbptk.MultiCommand import MultiCommand
+from dspbptk.ActionBlueprintToJSON import ActionBlueprintToJSON
+from dspbptk.ActionJSONToBlueprint import ActionJSONToBlueprint
+from dspbptk.ActionDump import ActionDump
+from dspbptk.ActionEdit import ActionEdit
 
 mc = MultiCommand()
 

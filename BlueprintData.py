@@ -18,9 +18,37 @@
 #
 #	Johannes Bauer <JohannesBauer@gmx.de>
 
+# Bad blueprint containing only one assembler: 
+# BLUEPRINT:0,10,0,0,0,0,0,0,638876841892894888,0.10.32.25783,,"H4sIAAAAAAAAC2NkQAWMUAxh/2dgOAFlMoKFZ////x/E/8/hCFGzSl1+G2NB2vbPDw6Y/ocCVNMYGACmW/x7ZAAAAA=="F3662BE5225F7514EA968DB070A8C76E
+# Game Version: 0.10.32.25783
+# Tilt was added to conveyors on May 29, 2024. This might be when the blueprints where broken
+# After experimentation, it appears that building information has dynamic length instead of the previous static lenths
+# As such, a deliminator of 4294967195 or 0xFFFFFF9B was introduced. Thankfully, the buidling ID can be pulled
+# It appears the offset and tilt parameters are dynamically incoporated but too much reverse engineering is required
+
+# Found parser here: https://github.com/huww98/dsp_blueprint_editor/commit/5b1a2588243a9bf7115c00ede4757aa42e719dbe
+# This parser was updated August 23rd, 2024
+
+# Found praser here: https://github.com/LRFalk01/DSP-Blueprint-Parser/blob/master/lib/dsp_blueprint_parser/parser.rb#L61
+# This parser was updated Aug 3rd, 2021
+
+import struct
 import collections
-from NamedStruct import NamedStruct
-from Enums import DysonSphereItem, LogisticsStationDirection
+from dspbptk.NamedStruct import NamedStruct
+from dspbptk.Enums import DysonSphereItem, LogisticsStationDirection
+
+def find_uint32_le(buf: bytes, value: int):
+    """Return a list of byte‐offsets where `value` appears as little-endian uint32."""
+    pattern = struct.pack('<I', value)    # use '>I' for big-endian
+    offsets = []
+    start = 0
+    while True:
+        idx = buf.find(pattern, start)
+        if idx == -1:
+            break
+        offsets.append(idx)
+        start = idx + 1                   # move past this match
+    return offsets
 
 class StationParameters():
 	_Parameters = collections.namedtuple("Parameters", [ "work_energy", "drone_range", "vessel_range", "orbital_collector", "warp_distance", "equip_warper", "drone_count", "vessel_count" ])
@@ -124,29 +152,34 @@ class BlueprintArea():
 
 class BlueprintBuilding():
 	_BLUEPRINT_BUILDING = NamedStruct((
-		("L", "index"),
-		("b", "area_index"),
-		("f", "local_offset_x"),
-		("f", "local_offset_y"),
-		("f", "local_offset_z"),
-		("f", "local_offset_x2"),
-		("f", "local_offset_y2"),
-		("f", "local_offset_z2"),
-		("f", "yaw"),
-		("f", "yaw2"),
+		("L", "delim"), # DSP_BLUEPRNT_EDITOR is doing somethign weird here: https://github.com/huww98/dsp_blueprint_editor/commit/5b1a2588243a9bf7115c00ede4757aa42e719dbe
+		("L", "index"), # DSP_BLUEPRNT_EDITOR is doing somethign weird here: https://github.com/huww98/dsp_blueprint_editor/commit/5b1a2588243a9bf7115c00ede4757aa42e719dbe
 		("H", "item_id"),
 		("H", "model_index"),
-		("L", "output_object_index"),
-		("L", "input_object_index"),
-		("b", "output_to_slot"),
-		("b", "input_from_slot"),
-		("b", "output_from_slot"),
-		("b", "input_to_slot"),
-		("b", "output_offset"),
-		("b", "input_offset"),
-		("H", "recipe_id"),
-		("H", "filter_id"),
-		("H", "parameter_count"),
+		("b", "area_index"),
+		#("f", "local_offset_x"),
+		#("f", "local_offset_y"),
+		#("f", "local_offset_z"),
+		#("f", "local_offset_x2"),
+		#("f", "local_offset_y2"),
+		#("f", "local_offset_z2"),
+		#("f", "yaw"),
+		#("f", "yaw2"),
+		#("f", "tilt"), # This is added to the blueprints according to DSP_BLUEPRNT_EDITOR
+		#("H", "pitch"), # This is added to the blueprints according to DSP_BLUEPRNT_EDITOR
+		#("H", "tilt2"), # This is added to the blueprints according to DSP_BLUEPRNT_EDITOR
+		#("H", "pitch2"), # This is added to the blueprints according to DSP_BLUEPRNT_EDITOR		
+		#("L", "output_object_index"),
+		#("L", "input_object_index"),
+		#("b", "output_to_slot"),
+		#("b", "input_from_slot"),
+		#("b", "output_from_slot"),
+		#("b", "input_to_slot"),
+		#("b", "output_offset"),
+		#("b", "input_offset"),
+		#("H", "recipe_id"),
+		#("H", "filter_id"),
+		("H", "parameter_count"), # According to DSP_BLUEPRNT_EDITOR, this is NULL
 	))
 
 	def __init__(self, fields, parameters):
@@ -194,7 +227,8 @@ class BlueprintBuilding():
 		fields = cls._BLUEPRINT_BUILDING.unpack_head(data, offset)
 		offset += cls._BLUEPRINT_BUILDING.size
 
-		parameters = [ int.from_bytes(data[offset + 4 * i : offset + (4 * (i + 1)) ], byteorder = "little") for i in range(fields.parameter_count) ]
+		parameters = [ int.from_bytes(data[offset + 4 * i : offset + (4 * (i + 1)) ], byteorder = "little") for i in range(0) ]
+
 		return cls(fields, parameters)
 
 class BlueprintData():
@@ -231,19 +265,38 @@ class BlueprintData():
 	def deserialize(cls, data):
 		header = cls._HEADER.unpack_head(data)
 
+		headerDict = header._asdict()
+		for val in headerDict:
+			print(val + ": " + str(headerDict[val]))
+
+
 		areas = [ ]
 		offset = cls._HEADER.size
+
 		for area_id in range(header.area_count):
 			area = BlueprintArea.deserialize(data, offset)
 			offset += area.size
 			areas.append(area)
+			areaDict = area.to_dict()
+			for val in areaDict:
+				print(val + ": " + str(areaDict[val]))
 
 		buildings = [ ]
 		building_header = cls._BUILDING_HEADER.unpack_head(data, offset)
 		offset += cls._BUILDING_HEADER.size
-		for building_id in range(building_header.building_count):
-			building = BlueprintBuilding.deserialize(data, offset)
-			offset += building.size
+
+		bHeadDict = building_header._asdict()
+		for val in bHeadDict:
+			print(val + ": " + str(bHeadDict[val]))
+
+		delim = 4294967195
+		offsets = find_uint32_le(data, delim)
+		for off in offsets:
+			building = BlueprintBuilding.deserialize(data, off)
+			buildDict = building.to_dict()
+			for val in buildDict:
+				print(val + ": " + str(buildDict[val]))
+			#offset += building.size
 			buildings.append(building)
 
 		return cls(header, areas, buildings)

@@ -144,6 +144,13 @@ class DysonSphereItem(enum.IntEnum):
 	InformationMatrix = 6004
 	GravityMatrix = 6005
 	UniverseMatrix = 6006
+	LaserTurret = 3002
+	BattleFieldAnalysisBase = 3009
+	LogisticsDistributor = 2107
+	PlanetaryShieldGenerator = 3008
+	ImplosionCannon = 3003
+	PileSorter = 2014
+	SRPlasmaTurret = 3010
 
 class LogisticsStationDirection(enum.IntEnum):
 	Output = 1

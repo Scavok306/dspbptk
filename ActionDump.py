@@ -20,9 +20,9 @@
 
 import json
 import collections
-from BaseAction import BaseAction
-from Blueprint import Blueprint
-from Enums import DysonSphereItem
+from dspbptk.BaseAction import BaseAction
+from dspbptk.Blueprint import Blueprint
+from dspbptk.Enums import DysonSphereItem
 
 class ActionDump(BaseAction):
 	def run(self):

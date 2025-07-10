@@ -1,0 +1,7 @@
+LICENSE
+README.md
+setup.py
+dspbptk.egg-info/PKG-INFO
+dspbptk.egg-info/SOURCES.txt
+dspbptk.egg-info/dependency_links.txt
+dspbptk.egg-info/top_level.txt

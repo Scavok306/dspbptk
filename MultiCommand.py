@@ -27,8 +27,8 @@ import sys
 import collections
 import textwrap
 
-from FriendlyArgumentParser import FriendlyArgumentParser
-from PrefixMatcher import PrefixMatcher
+from dspbptk.FriendlyArgumentParser import FriendlyArgumentParser
+from dspbptk.PrefixMatcher import PrefixMatcher
 
 class MultiCommand():
 	RegisteredCommand = collections.namedtuple("RegisteredCommand", [ "name", "description", "parsergenerator", "action", "aliases", "visible" ])

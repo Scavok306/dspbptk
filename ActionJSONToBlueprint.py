@@ -20,8 +20,8 @@
 
 import os
 import json
-from BaseAction import BaseAction
-from Blueprint import Blueprint
+from dspbptk.BaseAction import BaseAction
+from dspbptk.Blueprint import Blueprint
 
 class ActionJSONToBlueprint(BaseAction):
 	def run(self):
