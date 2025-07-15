@@ -265,11 +265,6 @@ class BlueprintData():
 	def deserialize(cls, data):
 		header = cls._HEADER.unpack_head(data)
 
-		headerDict = header._asdict()
-		for val in headerDict:
-			print(val + ": " + str(headerDict[val]))
-
-
 		areas = [ ]
 		offset = cls._HEADER.size
 
@@ -277,25 +272,15 @@ class BlueprintData():
 			area = BlueprintArea.deserialize(data, offset)
 			offset += area.size
 			areas.append(area)
-			areaDict = area.to_dict()
-			for val in areaDict:
-				print(val + ": " + str(areaDict[val]))
 
 		buildings = [ ]
 		building_header = cls._BUILDING_HEADER.unpack_head(data, offset)
 		offset += cls._BUILDING_HEADER.size
 
-		bHeadDict = building_header._asdict()
-		for val in bHeadDict:
-			print(val + ": " + str(bHeadDict[val]))
-
 		delim = 4294967195
 		offsets = find_uint32_le(data, delim)
 		for off in offsets:
 			building = BlueprintBuilding.deserialize(data, off)
-			buildDict = building.to_dict()
-			for val in buildDict:
-				print(val + ": " + str(buildDict[val]))
 			#offset += building.size
 			buildings.append(building)
 
